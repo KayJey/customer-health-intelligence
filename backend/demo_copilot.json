@@ -1,0 +1,261 @@
+[
+  {
+    "id": "at_risk",
+    "question": "Which customers are at risk this month?",
+    "keywords": [
+      "risk",
+      "churn",
+      "worried",
+      "danger"
+    ],
+    "trace": [
+      {
+        "tool": "query_customers",
+        "kind": "sql",
+        "input": {
+          "health_flag": "At risk",
+          "sort": "arr_current",
+          "order": "desc",
+          "limit": 5
+        },
+        "summary": "5 customers, 21 at risk in total"
+      }
+    ],
+    "answer": "21 customers are At risk, with $1.78M of ARR. The three largest:\n- C0018 (Whale, CSM-led), $400K, health 52.2, escalation, tickets reopened, slow support\n- C0215 (Whale, CSM-led), $299K, health 46.0, stalled onboarding, invoice disputed\n- C0169 (Whale, CSM-led), $229K, health 49.9, usage down 52%, champion left\nWant the reasons for any of them, or a draft outreach?"
+  },
+  {
+    "id": "why_drop",
+    "question": "Why did C0040 drop?",
+    "keywords": [
+      "why",
+      "drop",
+      "dropped",
+      "fell",
+      "decline"
+    ],
+    "trace": [
+      {
+        "tool": "get_health_breakdown",
+        "kind": "sql",
+        "input": {
+          "customer_id": "C0040",
+          "weeks": 5
+        },
+        "summary": "5 weeks"
+      },
+      {
+        "tool": "get_usage_trend",
+        "kind": "sql",
+        "input": {
+          "customer_id": "C0040",
+          "weeks": 8
+        },
+        "summary": "8 weeks"
+      },
+      {
+        "tool": "search_documents",
+        "kind": "vector",
+        "input": {
+          "query": "recent issues and owner changes",
+          "customer_id": "C0040",
+          "top_k": 3
+        },
+        "summary": "3 results"
+      }
+    ],
+    "answer": "C0040 went from 78.8 to 56.5 in four weeks (now At risk).\n- adoption fell from 74 to 31\n- engagement fell from 60 to 28\n- commercial fell from 98 to 93\nActive users went from 32 to 13 of 60 seats. Warning signs: usage down 61%, champion left.\nMost relevant note: \"Customer 0040 champion Sana Nguyen has left the company. The new owner is not yet trained on the supplier quality report and attendance on our calls i...\""
+  },
+  {
+    "id": "competitor",
+    "question": "Which customers mention a competitor in tickets or notes?",
+    "keywords": [
+      "competitor",
+      "competition",
+      "vendor",
+      "alternative",
+      "switch"
+    ],
+    "trace": [
+      {
+        "tool": "search_documents",
+        "kind": "vector",
+        "input": {
+          "query": "considering another vendor...",
+          "keywords": [
+            "Brightlane BI",
+            "Datavista",
+            "Pivotly",
+            "Clearmetric",
+            "competitor",
+            "vendor",
+            "switching"
+          ],
+          "top_k": 15
+        },
+        "summary": "15 results, 8 name a competitor"
+      }
+    ],
+    "answer": "In the top results, 7 accounts name a competitor in their tickets or notes. 2 are still active:\n- C0230: $184K, Healthy, renews in 39 days\n- C0022: $37K, Watch, renews in 365 days\nThe other 5 have already churned. Mentions are not always risk (for example a comparison made before purchase), so read each text before acting."
+  },
+  {
+    "id": "whales",
+    "question": "Which whales are going quiet?",
+    "keywords": [
+      "whale",
+      "whales",
+      "quiet",
+      "enterprise",
+      "largest"
+    ],
+    "trace": [
+      {
+        "tool": "get_rfm_segments",
+        "kind": "compute",
+        "input": {
+          "size_band": "Whale"
+        },
+        "summary": "25 whales"
+      },
+      {
+        "tool": "query_customers",
+        "kind": "sql",
+        "input": {
+          "size_band": "Whale",
+          "sort": "health_score"
+        },
+        "summary": "25 rows"
+      }
+    ],
+    "answer": "You have 25 whales. RFM segments: Light users 10, Champions 9, Cannot lose 3, Promising 2, Need attention 1. 12 are not Healthy, the lowest:\n- C0038: $203K, health 41.5 (At risk), RFM Light users\n- C0215: $299K, health 46.0 (At risk), RFM Cannot lose\n- C0169: $229K, health 49.9 (At risk), RFM Light users\n- C0018: $400K, health 52.2 (At risk), RFM Light users"
+  },
+  {
+    "id": "draft",
+    "question": "Draft outreach for C0169",
+    "keywords": [
+      "draft",
+      "outreach",
+      "email",
+      "write",
+      "message"
+    ],
+    "trace": [
+      {
+        "tool": "get_customer_detail",
+        "kind": "sql",
+        "input": {
+          "customer_id": "C0169"
+        },
+        "summary": "profile and contacts"
+      },
+      {
+        "tool": "find_similar_customers",
+        "kind": "vector",
+        "input": {
+          "customer_id": "C0169",
+          "top_k": 5
+        },
+        "summary": "5 similar accounts"
+      },
+      {
+        "tool": "draft_outreach",
+        "kind": "llm",
+        "input": {
+          "customer_id": "C0169"
+        },
+        "summary": "draft ready (template in demo mode)"
+      }
+    ],
+    "answer": "C0169 lost its champion. Among 5 similar accounts that were At risk before: 3 recovered, 1 still at risk, 1 churned. So I drafted a re-introduction note:\n\nSubject: A quick walkthrough for your team\n\nHi Hugo,\n\nI noticed that Dev has moved on from your team, and I wanted to make sure you have what you need. I can set up a short session to walk you through the dashboards your team has been using and help you pick up where Dev left off.\n\nWould a 30 minute slot this week work?\n\nBest,\nDaniel Okafor\n\nThis is a draft only. Want me to queue it for approval?"
+  },
+  {
+    "id": "alert_rule",
+    "question": "Alert me if any whale drops below 60",
+    "keywords": [
+      "alert",
+      "notify",
+      "rule",
+      "tell me",
+      "warn"
+    ],
+    "trace": [
+      {
+        "tool": "create_alert_rule",
+        "kind": "action",
+        "input": {
+          "segment": "whale",
+          "metric": "health_score",
+          "op": "<",
+          "value": 60
+        },
+        "summary": "recorded (demo mode: not saved)"
+      }
+    ],
+    "answer": "Rule recorded: alert when a whale's health score falls below 60 (demo mode, nothing was saved). Right now 4 whales are below 60 and 0 are between 60 and 65. The daily check by n8n is not connected yet, so this rule would not fire."
+  },
+  {
+    "id": "nudge",
+    "question": "Did the adoption nudge work?",
+    "keywords": [
+      "nudge",
+      "play",
+      "worked",
+      "experiment",
+      "adoption"
+    ],
+    "trace": [
+      {
+        "tool": "compare_play_outcomes",
+        "kind": "compute",
+        "input": {
+          "play_id": "adoption_nudge"
+        },
+        "summary": "3 groups"
+      }
+    ],
+    "answer": "Yes for the personalised version. Utilisation 4 weeks after the nudge changed by +0.065 for the industry-personalised email (B, 80 accounts, 65% improved), +0.017 for the generic email (A, 74, 30% improved) and -0.024 for the control group (53, 9% improved). The groups are small, so treat it as directional and rerun it on more accounts."
+  },
+  {
+    "id": "renewals",
+    "question": "Which renewals in the next 90 days are at risk?",
+    "keywords": [
+      "renewal",
+      "renewals",
+      "renew",
+      "renewing"
+    ],
+    "trace": [
+      {
+        "tool": "get_renewal_pipeline",
+        "kind": "sql",
+        "input": {
+          "within_days": 90,
+          "max_health": 65
+        },
+        "summary": "11 accounts at or below 65"
+      }
+    ],
+    "answer": "60 accounts ($3.48M) renew in the next 90 days. 11 of them have a health score of 65 or lower. The largest:\n- C0215: $299K, renews in 55 days, health 46.0\n- C0182: $58K, renews in 18 days, health 48.5\n- C0123: $44K, renews in 52 days, health 49.5"
+  },
+  {
+    "id": "today",
+    "question": "What should the team look at today?",
+    "keywords": [
+      "today",
+      "digest",
+      "priorities",
+      "focus",
+      "look at"
+    ],
+    "trace": [
+      {
+        "tool": "get_alerts_digest",
+        "kind": "sql",
+        "input": {
+          "limit": 5
+        },
+        "summary": "28 alerts"
+      }
+    ],
+    "answer": "Today's digest has 28 alerts: 14 High, 4 Medium, 10 Opportunity. The top ones:\n- High: C0018 ($400K), At risk with renewal in 118 days. Next step: Support Recovery\n- High: C0215 ($299K), At risk with renewal in 55 days. Next step: Onboarding Stall\n- High: C0169 ($229K), At risk with renewal in 97 days. Next step: Champion Loss\n- High: C0182 ($58K), At risk with renewal in 18 days. Next step: Move to CSM-led"
+  }
+]

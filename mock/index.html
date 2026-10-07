@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer Health Intelligence (mock)</title>
+<style>
+:root{--bg:#0b1020;--panel:#121a30;--panel2:#18223d;--line:#25304f;--text:#e8ecf7;--mute:#8e9ac0;--cyan:#22d3ee;--green:#34d399;--amber:#fbbf24;--red:#f87171;--violet:#a78bfa;--blue:#60a5fa}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,system-ui,Segoe UI,sans-serif}
+.app{display:grid;grid-template-columns:200px 1fr 320px;min-height:100vh}
+nav{background:#0a0f1d;border-right:1px solid var(--line);padding:18px 12px}
+nav h1{font-size:15px;margin:0 6px 18px;color:var(--cyan);letter-spacing:.3px}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--mute);padding:9px 10px;border-radius:8px;font:inherit;cursor:pointer;margin-bottom:2px}
+nav button.on,nav button:hover{background:var(--panel2);color:var(--text)}
+main{padding:20px 22px;overflow:auto}
+h2{margin:0 0 4px;font-size:20px}
+.sub{color:var(--mute);margin-bottom:16px}
+.screen{display:none}.screen.on{display:block}
+.row{display:grid;gap:12px;margin-bottom:12px}
+.kpis{grid-template-columns:repeat(6,1fr)}
+.g2{grid-template-columns:1.4fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g21{grid-template-columns:2fr 1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+.card h3{margin:0 0 10px;font-size:13px;color:var(--mute);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.kpi b{display:block;font-size:24px;margin-top:2px}
+.up{color:var(--green);font-size:12px}.dn{color:var(--red);font-size:12px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);font-size:13px}
+th{color:var(--mute);font-weight:600;font-size:12px}
+tr.click{cursor:pointer}tr.click:hover{background:var(--panel2)}
+.pill{padding:2px 8px;border-radius:99px;font-size:12px;font-weight:600}
+.p-g{background:#12372c;color:var(--green)}.p-a{background:#3d3012;color:var(--amber)}.p-r{background:#431c1c;color:var(--red)}.p-b{background:#14304d;color:var(--blue)}.p-v{background:#2b2150;color:var(--violet)}
+.bar{height:8px;background:var(--panel2);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:99px}
+.dim{display:grid;grid-template-columns:150px 1fr 40px;gap:10px;align-items:center;margin:8px 0}
+.note{margin-top:14px;border:1px dashed #3b4a78;border-radius:10px;padding:10px 12px;color:#aebbe6;background:#0e1730;font-size:12.5px}
+.note b{color:var(--cyan)}
+.heat td{text-align:center;font-size:12px;border:1px solid var(--bg)}
+.grid5{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.seg{border-radius:10px;padding:10px;border:1px solid var(--line);background:var(--panel2)}
+.seg b{display:block;font-size:18px}
+.flow{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;margin:8px 0 14px}
+.node{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;min-width:130px}
+.node small{display:block;color:var(--mute)}
+.arrow{align-self:center;color:var(--mute)}
+.t{border-color:#1d6d7d}.c{border-color:#7d6a1d}.a{border-color:#1d7d54}.h{border-color:#7d1d1d}
+aside{background:#0a0f1d;border-left:1px solid var(--line);padding:16px;display:flex;flex-direction:column;gap:10px}
+aside h3{margin:0;font-size:14px;color:var(--cyan)}
+.msg{padding:9px 11px;border-radius:10px;font-size:13px}
+.u{background:#1b2a52;align-self:flex-end;max-width:90%}
+.bot{background:var(--panel);border:1px solid var(--line)}
+.tool{font:12px ui-monospace,Consolas,monospace;color:var(--violet);background:#17133a;border-radius:8px;padding:6px 8px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{border:1px solid var(--line);border-radius:99px;padding:3px 9px;font-size:12px;color:var(--mute);cursor:pointer}
+.chip:hover{color:var(--text);border-color:var(--cyan)}
+.ask{margin-top:auto;display:flex;gap:6px}.ask input{flex:1;background:var(--panel);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:8px}
+.ask button{background:var(--cyan);border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+.draft{background:var(--panel2);border-left:3px solid var(--cyan);padding:10px 12px;border-radius:6px;font-size:13px;white-space:pre-wrap}
+.btn{background:var(--cyan);color:#04202a;border:0;border-radius:8px;padding:6px 12px;font-weight:700;cursor:pointer;font-size:12px}
+.btn.o{background:none;border:1px solid var(--line);color:var(--text)}
+.mockflag{position:fixed;right:12px;bottom:10px;background:#3d3012;color:var(--amber);padding:3px 10px;border-radius:99px;font-size:11px}
+@media(max-width:1100px){.app{grid-template-columns:1fr}aside,nav{border:0}.kpis{grid-template-columns:repeat(2,1fr)}.g2,.g3,.g21{grid-template-columns:1fr}}
+
+.badge{padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.k-sql{background:#14304d;color:var(--blue)}.k-vec{background:#2b2150;color:var(--violet)}.k-cmp{background:#12372c;color:var(--green)}.k-llm{background:#3d3012;color:var(--amber)}.k-act{background:#431c1c;color:var(--red)}
+.chat{display:flex;flex-direction:column;gap:10px;min-height:340px;max-height:60vh;overflow:auto;padding:4px}
+.chat .u{align-self:flex-end}
+.trace{font:12px ui-monospace,Consolas,monospace;border-left:3px solid var(--violet);background:#17133a;border-radius:6px;padding:6px 9px;color:#cfc4ff;max-width:92%}
+.trace span{color:var(--mute)}
+.stores{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.fl{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.fl .chip.on{color:var(--text);border-color:var(--cyan);background:var(--panel2)}
+@media(max-width:1100px){.stores{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<nav>
+ <h1>Customer Health<br>Intelligence</h1>
+ <button class="on" data-s="overview">Portfolio overview</button>
+ <button data-s="customers">Customers</button>
+ <button data-s="detail">Customer detail</button>
+ <button data-s="cohorts">Cohorts and RFM</button>
+ <button data-s="journeys">Journeys and plays</button>
+ <button data-s="alerts">Alerts</button>
+ <button data-s="program">Program impact</button>
+ <button data-s="copilot">AI Copilot</button>
+ <button data-s="tools">Copilot tools</button>
+</nav>
+
+<main>
+<!-- OVERVIEW -->
+<section class="screen on" id="overview">
+ <h2>Portfolio overview</h2><div class="sub">Tech Touch segment, 250 customers, last 30 days</div>
+ <div class="row kpis">
+  <div class="card kpi"><h3>Customers</h3><b>250</b><span class="up">+14 vs last mo</span></div>
+  <div class="card kpi"><h3>Avg health</h3><b>71</b><span class="dn">-2 pts</span></div>
+  <div class="card kpi"><h3>At risk</h3><b>31</b><span class="dn">+6</span></div>
+  <div class="card kpi"><h3>ARR at risk</h3><b>$1.9M</b><span class="dn">+$0.3M</span></div>
+  <div class="card kpi"><h3>Time to 1st value</h3><b>19 d</b><span class="up">-3 d</span></div>
+  <div class="card kpi"><h3>Gross retention</h3><b>91%</b><span class="up">+1 pt</span></div>
+ </div>
+ <div class="row g2">
+  <div class="card"><h3>Average health trend (12 months)</h3><svg viewBox="0 0 500 140" width="100%"><polyline fill="none" stroke="#22d3ee" stroke-width="2.5" points="10,60 50,55 90,58 130,50 170,46 210,52 250,44 290,40 330,48 370,56 410,62 450,66 490,70"/><polyline fill="none" stroke="#f87171" stroke-width="2" stroke-dasharray="4 4" points="10,110 50,112 90,108 130,106 170,110 210,104 250,108 290,112 330,100 370,96 410,92 450,88 490,84"/><text x="12" y="132" fill="#8e9ac0" font-size="10">solid: avg health   dashed: % customers at risk</text></svg></div>
+  <div class="card"><h3>Health distribution</h3>
+   <div class="dim"><span>Healthy (75+)</span><div class="bar"><i style="width:56%;background:var(--green)"></i></div><span>140</span></div>
+   <div class="dim"><span>Watch (50-74)</span><div class="bar"><i style="width:31%;background:var(--amber)"></i></div><span>79</span></div>
+   <div class="dim"><span>At risk (&lt;50)</span><div class="bar"><i style="width:13%;background:var(--red)"></i></div><span>31</span></div>
+  </div>
+ </div>
+ <div class="row g2">
+  <div class="card"><h3>Biggest movers this week</h3>
+   <table><tr><th>Customer</th><th>Tier</th><th>Health</th><th>Change</th><th>Main driver</th></tr>
+    <tr class="click" onclick="go('detail')"><td>Customer 0142</td><td>Digital</td><td>38</td><td class="dn">-19</td><td>Champion left</td></tr>
+    <tr class="click" onclick="go('detail')"><td>Customer 0087</td><td>Pooled</td><td>44</td><td class="dn">-14</td><td>Seat usage dropped</td></tr>
+    <tr class="click" onclick="go('detail')"><td>Customer 0203</td><td>Digital</td><td>81</td><td class="up">+12</td><td>First dashboard shared</td></tr>
+    <tr class="click" onclick="go('detail')"><td>Customer 0031</td><td>CSM-led</td><td>47</td><td class="dn">-11</td><td>Ticket reopened 3x</td></tr></table></div>
+  <div class="card"><h3>Expansion signals</h3>
+   <div class="seg" style="margin-bottom:8px"><b>17</b>customers over 85% seat use</div>
+   <div class="seg"><b>9</b>new departments appeared</div></div>
+ </div>
+ <div class="note"><b>Data needed:</b> customer master (id, industry, tier, ARR, signup date, renewal date, seats), weekly health snapshot per customer, health history, driver tags per score change, usage totals (seats used, queries).</div>
+</section>
+
+<!-- CUSTOMERS -->
+<section class="screen" id="customers">
+ <h2>Customers</h2><div class="sub">Filter by tier, lifecycle stage, industry or risk. Click a row for detail.</div>
+ <div class="chips" style="margin-bottom:10px"><span class="chip">Tier: all</span><span class="chip">Stage: all</span><span class="chip">Industry: all</span><span class="chip" style="color:var(--red);border-color:var(--red)">At risk only</span><span class="chip">Renewal in 90 days</span></div>
+ <div class="card"><table>
+  <tr><th>Customer</th><th>Industry</th><th>Tier</th><th>Stage</th><th>ARR</th><th>Health</th><th>Trend</th><th>Churn risk</th><th>Renewal</th></tr>
+  <tr class="click" onclick="go('detail')"><td>Customer 0142</td><td>Retail</td><td>Digital</td><td>Adoption</td><td>$42K</td><td><span class="pill p-r">38</span></td><td class="dn">falling</td><td>High</td><td>Jan 14</td></tr>
+  <tr class="click" onclick="go('detail')"><td>Customer 0087</td><td>Banking</td><td>Pooled</td><td>Renewal</td><td>$96K</td><td><span class="pill p-r">44</span></td><td class="dn">falling</td><td>High</td><td>Dec 02</td></tr>
+  <tr class="click" onclick="go('detail')"><td>Customer 0031</td><td>Healthcare</td><td>CSM-led</td><td>Adoption</td><td>$310K</td><td><span class="pill p-r">47</span></td><td class="dn">falling</td><td>Medium</td><td>Mar 21</td></tr>
+  <tr class="click" onclick="go('detail')"><td>Customer 0119</td><td>SaaS</td><td>Digital</td><td>Onboarding</td><td>$18K</td><td><span class="pill p-a">58</span></td><td>flat</td><td>Medium</td><td>Aug 05</td></tr>
+  <tr class="click" onclick="go('detail')"><td>Customer 0203</td><td>Retail</td><td>Digital</td><td>Adoption</td><td>$27K</td><td><span class="pill p-g">81</span></td><td class="up">rising</td><td>Low</td><td>Jun 30</td></tr>
+  <tr class="click" onclick="go('detail')"><td>Customer 0064</td><td>Telecom</td><td>Pooled</td><td>Expansion</td><td>$140K</td><td><span class="pill p-g">88</span></td><td class="up">rising</td><td>Low</td><td>Oct 12</td></tr></table></div>
+ <div class="note"><b>Data needed:</b> customer master plus lifecycle stage, current health score, 4-week trend, model churn probability, next renewal date.</div>
+</section>
+
+<!-- DETAIL -->
+<section class="screen" id="detail">
+ <h2>Customer 0142 <span class="pill p-r">Health 38</span> <span class="pill p-b">Digital tier</span> <span class="pill p-v">Adoption</span></h2>
+ <div class="sub">Retail | $42K ARR | Signed Feb 2025 | Renews Jan 14 | 40 seats, 11 active</div>
+ <div class="row g2">
+  <div class="card"><h3>Score breakdown</h3>
+   <div class="dim"><span>Adoption</span><div class="bar"><i style="width:34%;background:var(--red)"></i></div><span>34</span></div>
+   <div class="dim"><span>Onboarding progress</span><div class="bar"><i style="width:70%;background:var(--green)"></i></div><span>70</span></div>
+   <div class="dim"><span>Support experience</span><div class="bar"><i style="width:41%;background:var(--amber)"></i></div><span>41</span></div>
+   <div class="dim"><span>Engagement</span><div class="bar"><i style="width:22%;background:var(--red)"></i></div><span>22</span></div>
+   <div class="dim"><span>Commercial and relationship</span><div class="bar"><i style="width:30%;background:var(--red)"></i></div><span>30</span></div></div>
+  <div class="card"><h3>Why the score fell</h3>
+   <p>• Champion (BI lead) left the account 3 weeks ago<br>• Weekly active users down 58% in 6 weeks<br>• Last 3 outreach emails unopened<br>• One ticket reopened twice<br>• Renewal in 94 days, no exec contact</p>
+   <h3>Recommended action</h3><p><span class="pill p-r">Move to CSM-led</span> Trigger champion-loss play and book exec check-in.</p></div>
+ </div>
+ <div class="row g2">
+  <div class="card"><h3>Activity timeline</h3>
+   <table><tr><td>Mar 02</td><td>Champion contact bounced</td></tr><tr><td>Feb 20</td><td>Ticket reopened (2nd time)</td></tr><tr><td>Feb 11</td><td>Adoption nudge email sent, not opened</td></tr><tr><td>Jan 28</td><td>First dashboard shared by second user</td></tr><tr><td>Jan 05</td><td>Data source connected</td></tr></table></div>
+  <div class="card"><h3>AI-drafted outreach</h3><div class="draft">Subject: Quick check-in on your analytics rollout
+
+Hi team, I noticed things have changed on your side recently. We can set up a short session to re-share the three dashboards that your retail ops team used most and walk a new owner through them. Would Thursday work?</div>
+   <div style="margin-top:8px;display:flex;gap:6px"><button class="btn">Approve and send</button><button class="btn o">Edit</button></div></div>
+ </div>
+ <div class="note"><b>Data needed:</b> five dimension scores per week, driver tags, contacts with role and active flag, ticket history with reopen count, email events (sent, opened, clicked), onboarding milestone dates, seats purchased vs active, ARR and renewal date, outreach drafts log.</div>
+</section>
+
+<!-- COHORTS -->
+<section class="screen" id="cohorts">
+ <h2>Cohorts and RFM</h2><div class="sub">Who retains, who stalls, and which segment needs which coverage</div>
+ <div class="row g2">
+  <div class="card"><h3>Retention by signup cohort (% still active)</h3>
+   <table class="heat"><tr><th>Cohort</th><th>M1</th><th>M3</th><th>M6</th><th>M9</th><th>M12</th></tr>
+    <tr><td>Q1 2025</td><td style="background:#1b6b4f">100</td><td style="background:#1b6b4f">96</td><td style="background:#2a7a4f">91</td><td style="background:#6b6b1b">85</td><td style="background:#6b6b1b">82</td></tr>
+    <tr><td>Q2 2025</td><td style="background:#1b6b4f">100</td><td style="background:#1b6b4f">94</td><td style="background:#2a7a4f">88</td><td style="background:#6b6b1b">80</td><td>-</td></tr>
+    <tr><td>Q3 2025</td><td style="background:#1b6b4f">100</td><td style="background:#6b6b1b">87</td><td style="background:#7a3a1b">74</td><td>-</td><td>-</td></tr>
+    <tr><td>Q4 2025</td><td style="background:#1b6b4f">100</td><td style="background:#7a3a1b">79</td><td>-</td><td>-</td><td>-</td></tr></table></div>
+  <div class="card"><h3>Size cohorts: SME vs whales</h3>
+   <table><tr><th>Cohort</th><th>Count</th><th>Avg health</th><th>Retention</th><th>Time to 1st value</th></tr>
+    <tr><td>SME (&lt;$25K)</td><td>130</td><td>66</td><td>86%</td><td>24 d</td></tr>
+    <tr><td>Mid ($25-100K)</td><td>95</td><td>73</td><td>93%</td><td>17 d</td></tr>
+    <tr><td>Whales (&gt;$100K)</td><td>25</td><td>78</td><td>97%</td><td>12 d</td></tr></table></div>
+ </div>
+ <div class="card"><h3>RFM segments (usage-based)</h3>
+  <div class="grid5">
+   <div class="seg"><span class="pill p-g">Champions</span><b>46</b>high recency, frequency, ARR</div>
+   <div class="seg"><span class="pill p-b">Loyal</span><b>71</b>steady use, mid ARR</div>
+   <div class="seg"><span class="pill p-v">Promising</span><b>38</b>new, ramping</div>
+   <div class="seg"><span class="pill p-a">Need attention</span><b>44</b>slipping frequency</div>
+   <div class="seg"><span class="pill p-r">At risk</span><b>31</b>low recency, was active</div>
+   <div class="seg"><span class="pill p-r">Cannot lose</span><b>9</b>high ARR, going quiet</div>
+  </div></div>
+ <div class="note"><b>Data needed:</b> signup date and status per customer for every month, ARR for size bands, first-value date, last meaningful action date (recency), weekly active sessions (frequency), ARR (monetary).</div>
+</section>
+
+<!-- JOURNEYS -->
+<section class="screen" id="journeys">
+ <h2>Journeys and plays</h2><div class="sub">Triggers, conditions, branches and outcomes. Each play is an n8n workflow.</div>
+ <div class="card"><h3>Onboarding stall play</h3>
+  <div class="flow"><div class="node t">Trigger<small>Day 14, no dashboard shared</small></div><span class="arrow">→</span><div class="node c">Condition<small>Tier = Digital?</small></div><span class="arrow">→</span><div class="node a">Digital: AI nudge email<small>personalised by industry</small></div><span class="arrow">→</span><div class="node c">Opened in 5 days?<small></small></div><span class="arrow">→</span><div class="node a">Yes: send guide<br><small>No: in-app message</small></div><span class="arrow">→</span><div class="node h">Still stalled day 28<small>escalate to CSM</small></div></div></div>
+ <div class="card" style="margin-top:12px"><h3>Champion loss play</h3>
+  <div class="flow"><div class="node t">Trigger<small>Champion inactive or bounced</small></div><span class="arrow">→</span><div class="node c">Condition<small>ARR &gt; $25K or renewal &lt; 120 d</small></div><span class="arrow">→</span><div class="node h">Alert CSM<small>with AI brief</small></div><span class="arrow">→</span><div class="node a">Outreach to other users<small>drafted for approval</small></div></div></div>
+ <div class="card" style="margin-top:12px"><h3>Plays library</h3>
+  <table><tr><th>Play</th><th>Trigger</th><th>Coverage</th><th>Active</th><th>Success rate</th></tr>
+   <tr><td>Onboarding stall</td><td>No value by day 14</td><td>Digital</td><td>23</td><td>61%</td></tr>
+   <tr><td>Adoption nudge</td><td>Active users &lt; 40% of seats</td><td>Digital, Pooled</td><td>41</td><td>48%</td></tr>
+   <tr><td>Champion loss</td><td>Champion inactive</td><td>All</td><td>7</td><td>43%</td></tr>
+   <tr><td>Renewal readiness</td><td>Renewal in 120 days</td><td>All</td><td>58</td><td>72%</td></tr>
+   <tr><td>Expansion signal</td><td>Seats over 85%</td><td>Digital, Pooled</td><td>17</td><td>35%</td></tr></table></div>
+ <div class="note"><b>Data needed:</b> play definitions, play run log per customer (triggered, step reached, outcome), email and in-app message events, handoff to CSM log.</div>
+</section>
+
+<!-- ALERTS -->
+<section class="screen" id="alerts">
+ <h2>Alerts</h2><div class="sub">Proactive daily digest from the n8n alerting agent</div>
+ <div class="card"><h3>Today's digest (sent 8:00 to the Tech Touch team)</h3>
+  <table><tr><th>Severity</th><th>Customer</th><th>What changed</th><th>Suggested next step</th><th></th></tr>
+   <tr><td><span class="pill p-r">High</span></td><td>Customer 0142</td><td>Health 57 to 38, champion left</td><td>Move to CSM-led, exec check-in</td><td><button class="btn o">Open</button></td></tr>
+   <tr><td><span class="pill p-r">High</span></td><td>Customer 0087</td><td>Renewal in 56 days, usage down 40%</td><td>Renewal readiness play, value review</td><td><button class="btn o">Open</button></td></tr>
+   <tr><td><span class="pill p-a">Medium</span></td><td>Customer 0119</td><td>Stalled onboarding day 21</td><td>Send in-app guide</td><td><button class="btn o">Open</button></td></tr>
+   <tr><td><span class="pill p-g">Opportunity</span></td><td>Customer 0064</td><td>91% seat use, new department</td><td>Share expansion signal with Sales</td><td><button class="btn o">Open</button></td></tr></table></div>
+ <div class="note"><b>Data needed:</b> daily health deltas, alert log (created, severity, acknowledged, actioned), outcome after alert (recovered or churned).</div>
+</section>
+
+<!-- PROGRAM -->
+<section class="screen" id="program">
+ <h2>Program impact</h2><div class="sub">Did the digital program move retention? Treated vs untreated, by play</div>
+ <div class="row g3">
+  <div class="card kpi"><h3>Digital-influenced retention</h3><b>93%</b><span class="up">vs 86% untreated</span></div>
+  <div class="card kpi"><h3>Feature activation rate</h3><b>64%</b><span class="up">+9 pts</span></div>
+  <div class="card kpi"><h3>Escalations avoided</h3><b>38</b><span class="up">AI-handled</span></div>
+ </div>
+ <div class="card"><h3>Experiment: adoption nudge A vs B</h3>
+  <table><tr><th>Variant</th><th>Sent</th><th>Opened</th><th>Activated feature</th><th>Health change</th></tr>
+   <tr><td>A: generic</td><td>60</td><td>31%</td><td>14%</td><td>+2</td></tr>
+   <tr><td>B: AI-personalised by industry</td><td>60</td><td>52%</td><td>29%</td><td>+6</td></tr></table></div>
+ <div class="note"><b>Data needed:</b> play assignment (treated or control), experiment variant, outcome metrics at 30 and 60 days after play, activation events.</div>
+</section>
+
+<!-- COPILOT -->
+<section class="screen" id="copilot">
+ <h2>AI Copilot</h2><div class="sub">Ask in plain English. The copilot picks tools (SQL, vector search, compute, LLM, actions), runs them, and answers only from what they return. Pick a question to replay it.</div>
+ <div class="row g21">
+  <div class="card"><h3>Conversation</h3><div class="chat" id="chat"><div class="msg bot">Hi. I can query customer data, search tickets and call notes, explain scores, draft outreach and set up alerts. Try one of the questions on the right.</div></div></div>
+  <div class="card"><h3>Try asking</h3><div id="prompts" style="display:flex;flex-direction:column;gap:6px"></div>
+   <p style="color:var(--mute);font-size:12px;margin-top:12px">Mock: answers are pre-written, tool calls are shown as the real copilot would log them. Maximum 5 tool turns per question.</p></div>
+ </div>
+ <div class="note"><b>Data needed:</b> structured tables (SQL) plus unstructured text for the vector store: ticket threads, CSM call notes, QBR notes, outreach emails, NPS comments. The generator needs to write realistic free text for these, tied to each customer's story arc.</div>
+</section>
+
+<!-- TOOLS -->
+<section class="screen" id="tools">
+ <h2>Copilot tools</h2><div class="sub">Everything the copilot can call. The model sees this catalog, chooses tools, and loops until it has enough to answer.</div>
+ <div class="card" style="margin-bottom:12px"><h3>How a question is answered</h3>
+  <div class="flow"><div class="node t">1. Question<small>"Which whales are going quiet?"</small></div><span class="arrow">&rarr;</span><div class="node c">2. LLM picks tool(s)<small>from this catalog</small></div><span class="arrow">&rarr;</span><div class="node a">3. Tool runs<small>SQL, vector search, compute or API</small></div><span class="arrow">&rarr;</span><div class="node c">4. Result back to LLM<small>repeat up to 5 turns</small></div><span class="arrow">&rarr;</span><div class="node a">5. Grounded answer<small>cites the numbers returned</small></div></div></div>
+ <div class="card" style="margin-bottom:12px"><h3>Data stores the tools reach</h3>
+  <div class="stores">
+   <div class="seg"><span class="badge k-sql">STRUCTURED</span><b>Postgres</b>customers, health snapshots, tickets, usage, plays, alerts</div>
+   <div class="seg"><span class="badge k-vec">UNSTRUCTURED</span><b>Vector DB (Chroma)</b>ticket threads, call notes, QBR notes, NPS comments, emails</div>
+   <div class="seg"><span class="badge k-cmp">COMPUTE</span><b>Python models</b>health score, RFM, cohorts, churn and expansion models</div>
+   <div class="seg"><span class="badge k-act">ACTIONS</span><b>n8n webhooks</b>send email, WhatsApp, alerts, CRM updates</div>
+  </div></div>
+ <div class="card"><h3>Tool catalog</h3>
+  <div class="fl" id="kf"></div>
+  <table><thead><tr><th>#</th><th>Tool</th><th>Type</th><th>What it does</th><th>Example question</th></tr></thead><tbody id="tb"></tbody></table></div>
+ <div class="note"><b>Data needed:</b> nothing new beyond the other screens, plus embeddings of all unstructured text with customer id, date and source metadata, so SQL filters and vector search can be combined.</div>
+</section>
+</main>
+
+<aside>
+ <h3>Health Copilot</h3>
+ <div class="msg u">Which customers are at risk this month?</div>
+ <div class="tool">tool: list_at_risk_customers(window="30d")</div>
+ <div class="tool">tool: explain_score(customer="0142")</div>
+ <div class="msg bot">31 customers are at risk, with $1.9M ARR. The three that matter most:<br>• <b>0142</b> champion left, usage down 58%<br>• <b>0087</b> renewal in 56 days, usage down 40%<br>• <b>0031</b> ticket reopened 3 times<br>Want a draft outreach for any of them?</div>
+ <div class="chips"><span class="chip" onclick="ask(4)">Draft outreach for 0142</span><span class="chip" onclick="ask(1)">Why did 0142 drop?</span><span class="chip" onclick="ask(3)">Whales going quiet</span><span class="chip" onclick="ask(6)">Did the nudge work?</span></div>
+ <div class="ask"><input placeholder="Ask in plain English"><button>Ask</button></div>
+</aside>
+</div>
+<div class="mockflag">MOCK, fake numbers</div>
+<script>
+const btns=document.querySelectorAll('nav button');
+function go(id){btns.forEach(b=>b.classList.toggle('on',b.dataset.s===id));document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));window.scrollTo(0,0)}
+btns.forEach(b=>b.onclick=()=>go(b.dataset.s));
+
+const TOOLS=[
+["query_customers","sql","Filter customers by tier, industry, stage, ARR band, health, renewal window.","Show Digital-tier retail customers renewing in 90 days"],
+["get_customer_detail","sql","Full profile: ARR, seats, contacts, stage, current score and history.","Give me everything on Customer 0142"],
+["get_health_breakdown","sql","Five dimension scores with the drivers behind the latest change.","Why did 0142 drop?"],
+["get_usage_trend","sql","Weekly active users, queries and feature use, versus licensed seats.","Is 0087 still using the product?"],
+["get_ticket_stats","sql","Ticket volume, first response time, reopen count and escalations.","Who has repeat reopened tickets?"],
+["get_onboarding_status","sql","Milestone dates and time-to-first-value per customer or cohort.","Who is stalled in onboarding?"],
+["get_email_engagement","sql","Sends, opens and clicks per customer and per play.","Who ignored our last 3 emails?"],
+["get_renewal_pipeline","sql","Upcoming renewals with ARR, health and risk.","Which renewals are at risk next quarter?"],
+["search_tickets_semantic","vec","Meaning-based search over ticket threads, not just keywords.","Who is complaining about slow dashboards?"],
+["search_call_notes","vec","Semantic search over CSM call notes and QBR notes.","Which customers mention a competitor?"],
+["search_nps_comments","vec","Finds themes in NPS and survey free text.","What are detractors saying this quarter?"],
+["find_similar_customers","vec","Customers with a similar profile and story, plus how their saves or churns went.","Who looks like 0142 and what saved them?"],
+["summarize_account_history","llm","Reads many notes and tickets and writes a short account brief.","Brief me on 0031 before my call"],
+["get_cohort_retention","cmp","Retention curves by signup quarter, tier or size cohort.","Do SME or whales retain better?"],
+["get_rfm_segments","cmp","Usage-based RFM segments with counts and ARR.","Which whales are going quiet?"],
+["predict_churn_risk","cmp","Churn probability and top drivers from the churn model.","Who is most likely to churn in 90 days?"],
+["predict_expansion","cmp","Expansion propensity from usage and seat signals.","Who is ready to expand?"],
+["compare_play_outcomes","cmp","Treated versus control outcomes for a play or A/B variant.","Did the adoption nudge work?"],
+["recommend_next_action","llm","Best next step per customer, with the reason and the owner.","What should I do about 0087?"],
+["draft_outreach","llm","Personalised email or in-app message in the customer's context. Draft only.","Draft outreach for 0142"],
+["create_alert_rule","act","Creates an n8n rule such as 'whale health below 60'.","Alert me if any whale drops below 60"],
+["send_for_approval","act","Queues a draft for a human to approve before it is sent.","Queue that email for approval"],
+["handoff_to_csm","act","Moves a customer from digital to CSM-led and notifies the owner.","Move 0142 to a CSM"],
+["share_expansion_signal","act","Posts an expansion signal to Sales with the supporting data.","Tell Sales about 0064"]
+];
+const KIND={sql:["SQL","k-sql"],vec:["VECTOR","k-vec"],cmp:["COMPUTE","k-cmp"],llm:["LLM","k-llm"],act:["ACTION","k-act"]};
+let kfilter="all";
+function renderTools(){
+ const kf=document.getElementById('kf');
+ kf.innerHTML=[["all","All ("+TOOLS.length+")"],["sql","SQL"],["vec","Vector"],["cmp","Compute"],["llm","LLM-backed"],["act","Actions"]].map(([k,l])=>`<span class="chip ${kfilter===k?'on':''}" data-k="${k}">${l}</span>`).join('');
+ kf.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{kfilter=c.dataset.k;renderTools()});
+ document.getElementById('tb').innerHTML=TOOLS.map((t,i)=>[i+1,...t]).filter(r=>kfilter==="all"||r[2]===kfilter).map(r=>`<tr><td>${r[0]}</td><td><code>${r[1]}</code></td><td><span class="badge ${KIND[r[2]][1]}">${KIND[r[2]][0]}</span></td><td>${r[3]}</td><td style="color:var(--mute)">${r[4]}</td></tr>`).join('');
+}
+const SC=[
+{q:"Which customers are at risk this month?",t:['query_customers(health_lt=50, window="30d") <span>&rarr; 31 rows, $1.9M ARR</span>','predict_churn_risk(customers=top_10_by_arr) <span>&rarr; 3 above 70%</span>'],a:"31 customers are at risk, with $1.9M ARR. Three need attention first:<br>&bull; <b>0087</b> Banking, renews in 56 days, churn risk 78%<br>&bull; <b>0142</b> Retail, champion left, usage down 58%<br>&bull; <b>0031</b> Healthcare, $310K, ticket reopened 3 times<br>Want the reasons or a draft outreach for any of them?"},
+{q:"Why did Customer 0142 drop?",t:['get_health_breakdown(customer="0142") <span>&rarr; adoption 34, engagement 22</span>','get_usage_trend(customer="0142", weeks=8) <span>&rarr; WAU 26 to 11</span>','search_call_notes(customer="0142", query="champion, owner change") <span>&rarr; 2 notes</span>'],a:"Score fell from 57 to 38 in three weeks. Three causes:<br>&bull; The BI lead, the main champion, left. A call note on Feb 24 says she was handing over to someone in ops.<br>&bull; Weekly active users fell from 26 to 11 of 40 seats.<br>&bull; The last three outreach emails went unopened.<br>Renewal is in 94 days with no exec contact."},
+{q:"Which customers mention a competitor in tickets or notes?",t:['search_tickets_semantic("evaluating alternative BI tool", top_k=15) <span>&rarr; 9 hits</span>','search_call_notes("competitor, switching, RFP") <span>&rarr; 6 hits</span>','query_customers(ids=hits, fields="arr, renewal") <span>&rarr; 11 unique accounts</span>'],a:"11 accounts mention evaluating another tool, worth $640K ARR. Four renew within 120 days: <b>0087</b>, <b>0033</b>, <b>0158</b> and <b>0211</b>. In 0087's ticket thread they say dashboards load too slowly for their weekly review, which is a product issue to flag as well as a retention one."},
+{q:"Which whales are going quiet?",t:['get_rfm_segments(size="whale") <span>&rarr; 25 whales</span>','query_customers(size="whale", rfm="cannot_lose") <span>&rarr; 4 accounts</span>'],a:"4 of your 25 whales are in the cannot-lose segment: high ARR but no meaningful activity for 30+ days. Together they are $540K ARR. All four are CSM-led, but only one had an exec touchpoint in the last quarter."},
+{q:"Draft outreach for Customer 0142",t:['get_customer_detail("0142") <span>&rarr; profile, contacts</span>','find_similar_customers("0142", top_k=5) <span>&rarr; 5 matches, 3 saved</span>','draft_outreach(customer="0142", play="champion_loss") <span>&rarr; draft ready</span>'],a:"Three similar retail accounts recovered after a re-introduction session for the new owner, so I drafted that:<div class='draft' style='margin-top:8px'>Subject: Quick check-in on your analytics rollout\n\nHi team, I noticed things have changed on your side recently. We can set up a short session to re-share the three dashboards your retail ops team used most, and walk a new owner through them. Would Thursday work?</div>It is a draft only. Want me to queue it for approval?"},
+{q:"Alert me if any whale drops below 60",t:['create_alert_rule(segment="whale", metric="health", op="<", value=60) <span>&rarr; n8n rule #14 created</span>'],a:"Done. Rule #14 checks all 25 whales daily at 8:00 and alerts the Tech Touch channel with an AI brief and a suggested next step. Two whales are already close, at 62 and 63."},
+{q:"Did the adoption nudge work?",t:['compare_play_outcomes(play="adoption_nudge", horizon="60d") <span>&rarr; treated 60, control 60</span>'],a:"Yes, with a caveat. The AI-personalised variant lifted feature activation to 29%, against 14% for the generic one, and health rose 6 points versus 2. The groups are small, so I would run it on another 100 customers before calling it final."}
+];
+let busy=false;
+function ask(i){
+ go('copilot');
+ if(busy) return; busy=true;
+ const c=document.getElementById('chat'),sc=SC[i];
+ const add=(cls,h)=>{const d=document.createElement('div');d.className=cls;d.innerHTML=h;c.appendChild(d);c.scrollTop=c.scrollHeight};
+ add('msg u',sc.q);
+ let n=600;
+ sc.t.forEach(x=>{setTimeout(()=>add('trace','tool: '+x),n);n+=700});
+ setTimeout(()=>{add('msg bot',sc.a);busy=false},n+400);
+}
+document.getElementById('prompts').innerHTML=SC.map((x,i)=>`<span class="chip" onclick="ask(${i})">${x.q}</span>`).join('');
+renderTools();
+</script>
+</body>
+</html>

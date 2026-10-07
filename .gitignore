@@ -1,0 +1,20 @@
+data/
+__pycache__/
+.env
+env/
+.venv/
+*.webm
+*.mp4
+
+# Cloud service account keys must never be committed
+customer-health-intelligence-*.json
+*service-account*.json
+*-key.json
+
+node_modules/
+dashboard/dist/
+demo/
+*.gif
+data/app.db
+.DS_Store
+docs/SHARING.md
