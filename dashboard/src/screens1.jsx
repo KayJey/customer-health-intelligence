@@ -65,8 +65,9 @@ export function Customers({ open }) {
   const qs = new URLSearchParams(Object.entries(f).filter(([, v]) => v)).toString()
   const s = useApi(`/customers?limit=60&${qs}`)
   const set = (k, v) => setF({ ...f, [k]: v })
-  const Sel = ({ k, opts, label }) => (
-    <select value={f[k]} onChange={e => set(k, e.target.value)}><option value="">{label}</option>{opts.map(o => <option key={o}>{o}</option>)}</select>
+  // Plain function (not a component) so the dropdowns are not re-created on every state change.
+  const sel = (k, label, opts) => (
+    <select key={k} value={f[k]} onChange={e => set(k, e.target.value)}><option value="">{label}</option>{opts.map(o => <option key={o}>{o}</option>)}</select>
   )
   return (
     <>
@@ -74,10 +75,10 @@ export function Customers({ open }) {
       <div className="sub">Filter by risk, coverage tier, size and lifecycle stage. Click a row for the full picture.</div>
       <div className="filters">
         <input placeholder="Search id" value={f.search} onChange={e => set('search', e.target.value)} />
-        <Sel k="flag" label="Any health" opts={['At risk', 'Watch', 'Healthy']} />
-        <Sel k="tier" label="Any tier" opts={['Digital', 'Pooled', 'CSM-led']} />
-        <Sel k="band" label="Any size" opts={['SME', 'Mid', 'Whale']} />
-        <Sel k="stage" label="Any stage" opts={['Onboarding', 'Adoption', 'Renewal', 'Expansion']} />
+        {sel('flag', 'Any health', ['At risk', 'Watch', 'Healthy'])}
+        {sel('tier', 'Any tier', ['Digital', 'Pooled', 'CSM-led'])}
+        {sel('band', 'Any size', ['SME', 'Mid', 'Whale'])}
+        {sel('stage', 'Any stage', ['Onboarding', 'Adoption', 'Renewal', 'Expansion'])}
         <select value={`${f.sort}:${f.order}`} onChange={e => { const [sort, order] = e.target.value.split(':'); setF({ ...f, sort, order }) }}>
           <option value="health_score:asc">Lowest health first</option><option value="arr_current:desc">Largest ARR first</option>
           <option value="days_to_renewal:asc">Renewing soonest</option><option value="score_change_4w:asc">Biggest drop first</option>

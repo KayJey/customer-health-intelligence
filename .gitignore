@@ -18,3 +18,4 @@ demo/
 data/app.db
 .DS_Store
 docs/SHARING.md
+!dashboard/public/demo.mp4

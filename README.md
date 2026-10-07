@@ -173,6 +173,20 @@ experiment results, a clearly labelled scenario), AI copilot, copilot tools, and
 The tool calls and every number are computed by the real tools on the dataset; the wording is templated, not LLM-written.
 Regenerate with `python backend/demo_copilot.py`. Add a key to `backend/.env` for live answers.
 
+## Hosted static demo (no backend, no API key)
+
+`dashboard` can run entirely from saved snapshots, so it can be hosted for free on any static host.
+```bash
+cd backend && python export_static.py          # re-export the JSON snapshots (only needed if the data changes)
+cd ../dashboard && npm install && npm run build:static   # output in dashboard/dist
+npm run preview:static                          # test it at http://localhost:4173
+```
+In this mode the dashboard reads `public/static-api/*.json`, the copilot replays its recorded answers, and the ThoughtSpot tab shows
+a recorded walkthrough (`public/demo.mp4`) because the live embeds need a ThoughtSpot login.
+
+Deploy (free): **Vercel** (import the GitHub repo, set the Root Directory to `dashboard`; `vercel.json` sets the build) or
+**Netlify** (import the repo; `netlify.toml` sets the build) or Cloudflare Pages (root `dashboard`, build `npm run build:static`, output `dist`).
+
 ## Load into BigQuery
 ```bash
 pip install -r generator/requirements.txt

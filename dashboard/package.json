@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:static": "vite build --mode static",
+    "preview:static": "vite preview --mode static --port 4173"
   },
   "dependencies": {
     "@thoughtspot/visual-embed-sdk": "^1.53.0",

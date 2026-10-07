@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
+import { IS_STATIC, staticGet, staticPost } from './staticApi.js'
+
+export { IS_STATIC }
 
 export async function get(path) {
+  if (IS_STATIC) return staticGet(path)
   const r = await fetch(`/api${path}`)
   if (!r.ok) throw new Error(`${path}: ${r.status}`)
   return r.json()
 }
 
 export async function post(path, body) {
+  if (IS_STATIC) return staticPost(path, body)
   const r = await fetch(`/api${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
   const j = await r.json()
   if (!r.ok) throw new Error(j.error || `${path}: ${r.status}`)

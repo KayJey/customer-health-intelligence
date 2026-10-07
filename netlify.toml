@@ -1,0 +1,5 @@
+# Static hosted demo (reads saved JSON, no backend)
+[build]
+  base = "dashboard"
+  command = "npm run build:static"
+  publish = "dist"

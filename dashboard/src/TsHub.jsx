@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Card, Kpi, Note, money, useApi } from './ui.jsx'
+import { Card, IS_STATIC, Kpi, Note, money, useApi } from './ui.jsx'
 import { TsFrame, TsLiveboard, TsSearch, TsSpotter, TsStatusPill } from './TsEmbed.jsx'
 
 const QUESTIONS = [
@@ -17,7 +17,36 @@ const EXPLORE = [
 
 const TABS = [['liveboard', 'Portfolio Liveboard'], ['spotter', 'Ask Spotter'], ['explore', 'Explore (Search)']]
 
+function StaticHub() {
+  const o = useApi('/overview')
+  const k = o.data?.kpis
+  return (
+    <>
+      <h2>Analytics, powered by ThoughtSpot</h2>
+      <div className="sub">
+        In the full version, ThoughtSpot is embedded here (a governed Liveboard, Spotter for plain-English questions, and a customer-level search) on the same BigQuery data as this app.
+        Those embeds need a ThoughtSpot login, so this hosted demo shows a recorded walkthrough instead.
+      </div>
+      {k && (
+        <div className="row g3">
+          <Kpi label="Customers at risk (this app)" value={k.at_risk_customers} />
+          <Kpi label="ARR at risk (this app)" value={money(k.arr_at_risk)} />
+          <div className="card kpi"><h3>Same numbers in ThoughtSpot</h3><b style={{ fontSize: 16 }}>1.78M and 21</b><span className="mute">Shown in the video below, read live from BigQuery.</span></div>
+        </div>
+      )}
+      <Card title="Walkthrough: ThoughtSpot embedded in this app (recorded, about 1.5 minutes)">
+        <video controls preload="metadata" style={{ width: '100%', borderRadius: 8, background: '#000' }} src={`${import.meta.env.BASE_URL}demo.mp4`} />
+        <div className="mute" style={{ fontSize: 12, marginTop: 8 }}>
+          Shows the Portfolio health Liveboard, Spotter answering "ARR at risk by tier", and a customer page that sends the customer id into ThoughtSpot and gets the same scores back.
+        </div>
+      </Card>
+      <Note>The rest of this app (overview, customers, cohorts, plays, alerts, program impact, copilot) runs from saved data in this hosted demo. All data is synthetic.</Note>
+    </>
+  )
+}
+
 export function TsHub() {
+  if (IS_STATIC) return <StaticHub />
   const [tab, setTab] = useState('liveboard')
   const [q, setQ] = useState('')
   const [tokens, setTokens] = useState(EXPLORE[0][1])
@@ -71,6 +100,16 @@ export function TsHub() {
 
 // Context handoff: this app passes the selected customer into ThoughtSpot.
 export function TsCustomerCard({ cid }) {
+  if (IS_STATIC) {
+    return (
+      <Card title={`Analyze ${cid} in ThoughtSpot`}>
+        <div className="mute" style={{ fontSize: 12.5 }}>
+          In the full version, this app sends the customer id to ThoughtSpot as a search filter and ThoughtSpot returns the same scores from BigQuery.
+          That needs a ThoughtSpot login, so it is shown in the walkthrough video on the Analytics tab.
+        </div>
+      </Card>
+    )
+  }
   const tokens = `[customer_id].'${cid}' [health_score] [score_adoption] [score_support] [score_engagement] [score_commercial] [score_onboarding] [arr_current]`
   return (
     <Card title={`Analyze ${cid} in ThoughtSpot`}>

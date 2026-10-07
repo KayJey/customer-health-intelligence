@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { IS_STATIC } from './ui.jsx'
 import { Overview, Customers, CustomerDetail } from './screens1.jsx'
 import { Cohorts, Journeys, Alerts, Program } from './screens2.jsx'
 import { Copilot, ThoughtSpot, Tools } from './screens3.jsx'
@@ -25,7 +26,10 @@ export default function App() {
         <div className="tag">Synthetic data</div>
         {NAV.map(([k, label]) => <button key={k} className={view === k ? 'on' : ''} onClick={() => setView(k)}>{label}</button>)}
       </nav>
-      <main>{screens[view]}</main>
+      <main>
+        {IS_STATIC && <div className="banner">Static demo: saved snapshots of synthetic data, no backend. The ThoughtSpot embeds and the live copilot run in the full version; see the Analytics tab for the recorded walkthrough.</div>}
+        {screens[view]}
+      </main>
     </div>
   )
 }
