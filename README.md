@@ -12,7 +12,8 @@ The copilot runs in demo mode without an API key. Next: n8n alerts and the live 
 The signal types mirror client-intelligence work done earlier (cases, turnaround time, rework,
 escalations, email engagement), re-shaped for a SaaS customer-success setting.
 
-Demo video (about 1.5 minutes, shows the live ThoughtSpot embeds): link to be added.
+**Live demo (static, synthetic data, no login):** https://customer-health-intelligence-psi.vercel.app
+The Analytics tab plays a 1.5 minute walkthrough of the live ThoughtSpot embeds (Liveboard, Spotter, customer-level search).
 
 ## Quick start: run the app
 
